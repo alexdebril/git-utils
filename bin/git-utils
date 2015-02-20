@@ -1,17 +1,23 @@
 #!/bin/bash
 
+function usage_cmd()
+{
+    echo -e "$1\t\t$2"
+}
+
 function usage()
 {
     echo "usage: git-utils <command>"
     echo -e "available commands are : \n"
-    echo -e "see-large-files \t prints a list of the biggest files"
+    usage_cmd "see-large-files" "prints a list of the biggest files"
+    usage_cmd "purge-history" "purge a file from the history"
 
     exit
 }
 
 # @see http://stubbisms.wordpress.com/2009/07/10/git-script-to-show-largest-pack-objects-and-trim-your-waist-line/
 # @author Antony Stubbs
-function seeLargeFiles()
+function see_large_files()
 {
     echo "large files"
     IFS=$'\n';
@@ -41,7 +47,16 @@ function seeLargeFiles()
 
 }
 
+function purge_history()
+{
+    if [[ $1 == "" ]]; then
+        exit "please specify a file to purge"
+    fi
+    git filter-branch --tag-name-filter cat --index-filter "git rm -r --cached --ignore-unmatch $1" --prune-empty -f -- --all
+}
+
 case $1 in
-     see-large-files ) seeLargeFiles;;
+     see-large-files ) see_large_files;;
+     purge-history ) purge_history $2;;
      *) usage;;
 esac
